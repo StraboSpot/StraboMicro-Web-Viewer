@@ -19,7 +19,7 @@ There are configuration options located in the file assets/microView_config.js:
 
  - **smzFilesLocation**: This option lets you change where the StraboMicro  
    Web Viewer looks for project folders. The default value is   
-   ./smzFiles/. Please remember that this location is regulated by CORS 
+   `./smzFiles/`. Please remember that this location is regulated by CORS 
    rules and cross-domain requests will likely not work.
  - **showHeader**:    This option determines if the top header should be shown. The    default value is true.
  - **showFooter**: This option determines if the bottom footer should be shown. The default value is true.
