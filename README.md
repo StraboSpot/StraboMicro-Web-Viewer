@@ -28,6 +28,8 @@ There are configuration options located in the file assets/microView_config.js:
 
 The StraboMicro Web Viewer will only work with SMZ projects saved by StraboMicro version 1.0.4 or later. Previous versions of StraboMicro do not create the necessary image folders needed by StraboMicro Web Viewer.
 
+StraboMicro can be downloaded at https://strabospot.org/micro
+
 ## Questions?
 
 Please direct all questions regarding The StraboMicro Web Viewer to:
