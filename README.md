@@ -6,6 +6,7 @@ The StraboMicro Web Viewer is a simple web application that allows the hosting a
  1. Github repo files are placed in a location served by a web server.
  2. Uncompressed SMZ folders are placed in the smzFiles directory:
  ![How to Add Projects](https://strabospot.org/assets/files/microViewerSShot.png)
+ 
  SMZ files can be uncompressed by changing the .smz extension to .zip and 
  expanding with your preferred zip archive utility.
  3. Project can then be viewed by visiting
