@@ -46,6 +46,11 @@ function loadProject(){
 			
 			if(showHeader) unHideHeader();
 			if(showFooter) unHideFooter();
+			
+			if(data.name != null){
+				document.getElementById("projectTitle").innerHTML = "Project: " + data.name;
+			}
+			
 			gatherAllMicrographs(data);
 			loadSideBar(data);
 			switchToMicrograph(micrographs[0].id);
