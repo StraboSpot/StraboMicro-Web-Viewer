@@ -945,6 +945,9 @@ function switchToMicrograph(inMicrographId){
 
 function drawSpots(inMicrograph){
 
+		var padding = getPadding(inMicrograph.id);
+		console.log(padding);
+		
 		if(canvas != null){
 			let allObjects = canvas.getObjects();
 
@@ -959,8 +962,8 @@ function drawSpots(inMicrograph){
 			
 			inMicrograph.spots.forEach((spot) => {
 				if(spot.geometryType == "point"){
-					let xLoc = Math.round(spot.points[0].X * conversionRatio);
-					let yLoc = Math.round(spot.points[0].Y * conversionRatio);
+					let xLoc = Math.round((spot.points[0].X + padding.leftPadding) * conversionRatio);
+					let yLoc = Math.round((spot.points[0].Y + padding.topPadding) * conversionRatio);
 					let xTextLoc = xLoc + 15;
 					let yTextLoc = yLoc - 15;
 					let fillColor = "#" + spot.color.substring(2, 8);
@@ -970,8 +973,8 @@ function drawSpots(inMicrograph){
 					var circle = new fabric.Circle({
 						radius: 7,
 						fill: fillColor,
-						left: xLoc,
-						top: yLoc,
+						left: xLoc - 7,
+						top: yLoc - 7,
 						hoverCursor: "pointer"
 					});
 		
@@ -1014,8 +1017,8 @@ function drawSpots(inMicrograph){
 					let maxYVal = -9999;
 					
 					spot.points.forEach((point) => {
-						let thisXVal = Math.round(point.X * conversionRatio);
-						let thisYVal = Math.round(point.Y * conversionRatio);
+						let thisXVal = Math.round((point.X + padding.leftPadding) * conversionRatio);
+						let thisYVal = Math.round((point.Y + padding.topPadding) * conversionRatio);
 						
 						if(thisXVal < minXVal) minXVal = thisXVal;
 						if(thisXVal > maxXVal) maxXVal = thisXVal;
@@ -1092,8 +1095,8 @@ function drawSpots(inMicrograph){
 					let maxYVal = -9999;
 					
 					spot.points.forEach((point) => {
-						let thisXVal = Math.round(point.X * conversionRatio);
-						let thisYVal = Math.round(point.Y * conversionRatio);
+						let thisXVal = Math.round((point.X + padding.leftPadding) * conversionRatio);
+						let thisYVal = Math.round((point.Y + padding.topPadding) * conversionRatio);
 						
 						if(thisXVal < minXVal) minXVal = thisXVal;
 						if(thisXVal > maxXVal) maxXVal = thisXVal;
@@ -1190,6 +1193,170 @@ function getMicrographData(inMicrographId){
 	return outData;
 }
 
+function getChildMicrographs(micrographId){
+	foundMicrographs = [];
+	if(projectData.datasets != null){
+		projectData.datasets.forEach((ds) => {
+			if(ds.samples != null){
+				ds.samples.forEach((sample) => {
+					if(sample.micrographs != null){
+						sample.micrographs.forEach((micrograph) => {
+							if(micrograph.parentID == micrographId){
+								foundMicrographs.push(micrograph);
+							}
+						});
+					}
+				});
+			}
+		});
+	}
+	
+	return foundMicrographs;
+}
+
+//New function to get padding
+function getPadding(micrographId){
+	
+	//This function accepts a parent micrograph id and returns padding based on child micrographs.
+	var minX = 9999999;
+	var maxX = -9999999;
+	var minY = 9999999;
+	var maxY = -9999999;
+	
+	var padding = {};
+	padding.leftPadding = 0;
+	padding.topPadding = 0;
+	padding.rightPadding = 0;
+	padding.bottomPadding = 0;
+	
+	var inMicrograph = getMicrographData(micrographId);
+	var childMicrographs = getChildMicrographs(micrographId);
+
+	var bigResizeRatio = 1.0;
+	var bigImageWidth = inMicrograph.width;
+	var bigImageHeight = inMicrograph.height;
+
+	if(childMicrographs != null){
+		childMicrographs.forEach((thisMicrograph) => {
+			if(thisMicrograph.offsetInParent != null){
+				var littleCMWidth = thisMicrograph.width / thisMicrograph.scalePixelsPerCentimeter;
+				var littleCMHeight = thisMicrograph.height / thisMicrograph.scalePixelsPerCentimeter;
+				var subImageWidth = Math.round(littleCMWidth * inMicrograph.scalePixelsPerCentimeter * bigResizeRatio);
+				var subImageHeight = Math.round(littleCMHeight * inMicrograph.scalePixelsPerCentimeter * bigResizeRatio);
+				var subImageRotation = thisMicrograph.rotation;
+				var subImageOffsetX = thisMicrograph.offsetInParent.X + 2500;
+				var subImageOffsetY = thisMicrograph.offsetInParent.Y + 2500;
+
+				var arcMult = 0.01745329252;
+				
+				var centerX = subImageOffsetX + (subImageWidth / 2);
+				var centerY = subImageOffsetY + (subImageHeight / 2);
+
+				var currentRotation = subImageRotation * arcMult;
+				
+				var hyp = Math.sqrt(((subImageWidth / 2) * (subImageWidth / 2)) + ((subImageHeight / 2) * (subImageHeight / 2)));
+				
+				var offsetAngle = Math.atan((subImageHeight / 2) / (subImageWidth / 2));
+				
+				var deltaX = 0;
+				var deltaY = 0;
+				
+				var xVal = 0;
+				var yVal = 0;
+				
+				//UL
+				deltaX = Math.cos(currentRotation + offsetAngle) * hyp;
+				deltaY = Math.sin(currentRotation + offsetAngle) * hyp;
+				
+				xVal = centerX - deltaX;
+				yVal = centerY - deltaY;
+
+				if(xVal < minX) minX = xVal;
+				if(xVal > maxX) maxX = xVal;
+				if(yVal < minY) minY = yVal;
+				if(yVal > maxY) maxY = yVal;
+				
+				//UR
+				deltaX = Math.cos(currentRotation + offsetAngle + (180 * arcMult)) * hyp;
+				deltaY = Math.sin(currentRotation + offsetAngle + (180 * arcMult)) * hyp;
+				
+				xVal = centerX - deltaX;
+				yVal = centerY - deltaY;
+
+				if(xVal < minX) minX = xVal;
+				if(xVal > maxX) maxX = xVal;
+				if(yVal < minY) minY = yVal;
+				if(yVal > maxY) maxY = yVal;
+				
+				
+				//LR
+				deltaX = Math.cos(currentRotation - offsetAngle + (180 * arcMult)) * hyp;
+				deltaY = Math.sin(currentRotation - offsetAngle + (180 * arcMult)) * hyp;
+				
+				xVal = centerX - deltaX;
+				yVal = centerY - deltaY;
+
+				if(xVal < minX) minX = xVal;
+				if(xVal > maxX) maxX = xVal;
+				if(yVal < minY) minY = yVal;
+				if(yVal > maxY) maxY = yVal;
+				
+				//LL
+				deltaX = Math.cos(currentRotation - offsetAngle) * hyp;
+				deltaY = Math.sin(currentRotation - offsetAngle) * hyp;
+				
+				xVal = centerX - deltaX;
+				yVal = centerY - deltaY;
+
+				if(xVal < minX) minX = xVal;
+				if(xVal > maxX) maxX = xVal;
+				if(yVal < minY) minY = yVal;
+				if(yVal > maxY) maxY = yVal;
+	
+			}
+		});
+
+		if(minX < 2500){
+			padding.leftPadding = Math.ceil(2500 - minX);
+		}else{
+			padding.leftPadding = 0;
+		}
+		
+		if(maxX > (2500 + bigImageWidth)){
+			padding.rightPadding = Math.ceil(maxX - (2500 + bigImageWidth));
+		}else{
+			padding.rightPadding = 0;
+		}
+		
+		if(minY < 2500){
+			padding.topPadding = Math.ceil(2500 - minY);
+		}else{
+			padding.topPadding = 0;
+		}
+		
+		if(maxY > (2500 + bigImageHeight)){
+			padding.bottomPadding = Math.ceil(maxY - (2500 + bigImageHeight));
+		}else{
+			padding.bottomPadding = 0;
+		}
+
+	}
+
+	return padding;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
 function switchMainImage(imageId){
 	document.getElementById("notFoundImage").style.display = "none";
 	var mainImage = new Image();
@@ -1201,14 +1368,20 @@ function switchMainImage(imageId){
 		document.getElementById("insideWrapper").prepend(mainImage);
 
 		let micrograph = getMicrographData(imageId);
-		let naturalWidth = micrograph.width;
-		let naturalHeight = micrograph.height;
+
+		//Get padding here to calculate new values
+		var padding = getPadding(imageId);
+		
+		let naturalWidth = micrograph.width + padding.leftPadding + padding.rightPadding;
+		let naturalHeight = micrograph.height + padding.topPadding + padding.bottomPadding;
+		
+		console.log("naturalWidth " + naturalWidth + " naturalHeight " + naturalHeight);
 
 		let imageRatio = naturalHeight / naturalWidth;
 		mainImageHeight = Math.round(750 * imageRatio);
 		
-		
-		
+
+
 		conversionRatio = 750 / naturalWidth;
 		
 		console.log("conversionRatio: " + conversionRatio);

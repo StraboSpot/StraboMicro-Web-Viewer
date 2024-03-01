@@ -29,7 +29,7 @@ ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, body, html, p, blockquote, fields
 	font-family: 'Raleway', sans-serif;
 	font-size: 13px;
 	width: 100%;
-    position: absolute;
+    /*position: absolute;*/
     bottom: 0;
 }
 
