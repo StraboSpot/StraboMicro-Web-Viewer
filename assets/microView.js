@@ -941,6 +941,7 @@ function switchToMicrograph(inMicrographId){
 		//Switch Main Image
 		switchMainImage(inMicrographId);
 		showMicrographDetails(inMicrographId);
+		document.body.scrollTop = document.documentElement.scrollTop = 0;
 
 	}else{
 		clearMainImage();
@@ -1165,6 +1166,58 @@ function drawSpots(inMicrograph){
 			
 		
 		}
+		
+		//Also draw any child point micrographs
+		var childMicrographs = getChildMicrographs(inMicrograph.id);
+		
+		//console.log(childMicrographs);
+		childMicrographs.forEach((mg) => {
+			if(mg.pointInParent != null){
+
+				let xLoc = Math.round((mg.pointInParent.X + padding.leftPadding) * conversionRatio);
+				let yLoc = Math.round((mg.pointInParent.Y + padding.topPadding) * conversionRatio);
+				let xTextLoc = xLoc + 15;
+				let yTextLoc = yLoc - 15;
+				let fillColor = "#FF0000FF";
+				let labelString = mg.name;
+				let mgId = mg.id;
+
+				var circle = new fabric.Circle({
+					radius: 7,
+					fill: fillColor,
+					left: xLoc - 7,
+					top: yLoc - 7,
+					hoverCursor: "pointer"
+				});
+	
+				circle.set({ strokeWidth: 2, stroke: '#FFFFFF' });
+	
+				circle.on('mousedown', function() {
+					switchToMicrograph(mgId);
+				});
+	
+				canvas.add(circle);
+
+				var textLabel = new fabric.Text(labelString, {
+					fontFamily: 'Open sans',
+					fontSize: 20,
+					fill: '#FFFFFF',
+					stroke: '#000000',
+					strokeWidth: 2,
+					left: xTextLoc,
+					top: yTextLoc,
+					hoverCursor: "pointer",
+					paintFirst: "stroke"
+				});
+	
+				textLabel.on('mousedown', function() {
+					switchToMicrograph(mgId);
+				});
+	
+				canvas.add(textLabel);
+
+			}
+		});
 
 		let newObjects = canvas.getObjects();
 
