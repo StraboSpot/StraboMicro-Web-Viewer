@@ -1417,8 +1417,9 @@ function getPadding(micrographId){
 
 function switchMainImage(imageId){
 	document.getElementById("notFoundImage").style.display = "none";
+	document.getElementById("loadingMessage").style.display = "inline";
 	var mainImage = new Image();
-	
+
 	mainImage.onload = function () {
 		mainImage.width = 750;
 		document.getElementById("mainImage").remove();
@@ -1449,6 +1450,8 @@ function switchMainImage(imageId){
 
 		let thisMicrograph = getMicrograph(imageId);
 		drawSpots(thisMicrograph);
+		
+		document.getElementById("loadingMessage").style.display = "none";
 
 	}
 	
