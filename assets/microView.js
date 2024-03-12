@@ -52,10 +52,17 @@ function loadProject(){
 			if(data.name != null){
 				document.getElementById("projectTitle").innerHTML = "Project: " + data.name;
 			}
-			
+
 			gatherAllMicrographs(data);
+
 			loadSideBar(data);
-			switchToMicrograph(micrographs[0].id);
+			
+			for (let i = 0; i < micrographs.length; i++) {
+				if(micrographs[i].parentID == null){
+					switchToMicrograph(micrographs[i].id);
+					break;
+				}
+			}
 		},
 		error: function(){
 			document.getElementById("whole-doc").innerHTML = "Unable to load project " + projectId + ".";   
