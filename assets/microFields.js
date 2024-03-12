@@ -201,7 +201,7 @@ let microFields = [
 	{rawname:"phase1", fixedName:"Phase 1", show:"yes"},
 	{rawname:"phase2", fixedName:"Phase 2", show:"yes"},
 	{rawname:"phases", fixedName:"Phases", show:"no"},
-	{rawname:"pointinparent", fixedName:"Point in arent", show:"yes"},
+	{rawname:"pointinparent", fixedName:"Point in Parent", show:"no"},
 	{rawname:"pointorder", fixedName:"Point Order", show:"yes"},
 	{rawname:"points", fixedName:"Points", show:"no"},
 	{rawname:"polish", fixedName:"Polish", show:"yes"},

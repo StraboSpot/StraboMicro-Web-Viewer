@@ -7,6 +7,7 @@ var projectData = null;
 if(smzFilesLocation == null){
 	const smzFilesLocation = "notset";
 }
+var openTab = "";
 
 function isJSON(str) {
     if (typeof str !== 'string') return false;
@@ -39,6 +40,7 @@ function loadProject(){
 			jQuery( function() {
 				jQuery( "#accordion" ).accordion({
 					active: false,
+					animate: false,
 					collapsible: true,
 					heightStye: "fill"
 				});
@@ -141,7 +143,9 @@ function showSpotDetails(inSpotId){
 	document.getElementById("accordion").innerHTML = accordionString;
 	
 	$("#accordion").accordion("destroy");
-	$( "#accordion" ).accordion({active: false, collapsible: true, heightStyle: "fill" });	
+	$( "#accordion" ).accordion({active: false, animate: false, collapsible: true, heightStyle: "fill" });
+	
+	doOpenSavedTab();
 }
 
 function showMicrographDetails(inMicrographId){
@@ -168,11 +172,13 @@ function showMicrographDetails(inMicrographId){
 	let accordionString = showSideDetails("micrograph", outData, sampleData);
 	document.getElementById("accordion").innerHTML = accordionString;
 	
-if($("#accordion").hasClass("ui-accordion")){
-   $("#accordion").accordion("destroy");
-}
+	if($("#accordion").hasClass("ui-accordion")){
+	   $("#accordion").accordion("destroy");
+	}
 	
-	$( "#accordion" ).accordion({active: false, collapsible: true, heightStyle: "fill" }); //content
+	$( "#accordion" ).accordion({active: false, animate: false, collapsible: true, heightStyle: "fill" }); //content
+	
+	doOpenSavedTab();
 }
 
 function fixOperator(op){
@@ -181,6 +187,23 @@ function fixOperator(op){
 	if(op == "lt") outOp = "<";
 	if(op == "gt") outOp = ">";
 	return outOp;
+}
+
+function setOpenTab(tabName){
+	openTab = tabName;
+}
+
+function doOpenSavedTab(){
+	var $accordion = $("#accordion").accordion();
+	if(openTab != ""){
+		existingTabs = $accordion.find("h3");
+		for (let i = 0; i < existingTabs.length; i++) {
+			let thisTab = existingTabs[i];
+			if(thisTab.textContent == openTab){
+				$accordion.accordion("option","active",i);
+			}
+		}
+	}
 }
 
 function showSideDetails(type, outData, sampleData, excludes=[]){
@@ -195,7 +218,7 @@ function showSideDetails(type, outData, sampleData, excludes=[]){
 	document.getElementById("rightHeader").innerHTML = sideName;
 	
 	side = "";
-	side += "<h3>Sample Details:</h3>";
+	side += "<h3 onclick=\"setOpenTab('Sample Details:');\">Sample Details:</h3>";
 	side += "<div>";
 	side += addBasicHeaders(sampleData, excludes);
 	side += "</div>";
@@ -204,17 +227,17 @@ function showSideDetails(type, outData, sampleData, excludes=[]){
 	if(type == "micrograph"){
 		header = "Micrograph Details:";
 	}else{
-		header = "Spot Details";
+		header = "Spot Details:";
 	}
 	
-	side += "<h3>" + header + "</h3>";
+	side += "<h3 onclick=\"setOpenTab('" + header + "');\">" + header + "</h3>";
 	side += "<div>";
 	side += addBasicHeaders(outData, ['color','showLabel','date','time','modifiedTimestamp','geometryType']);
 	side += "</div>";
 	
 	//Orientation
 	if(outData.orientationInfo != null){
-		side += "<h3>Orientation Info:</h3>";
+		side += "<h3 onclick=\"setOpenTab('Orientation Info:');\">Orientation Info:</h3>";
 		side += "<div>";
 		side += addBasicHeaders(outData.orientationInfo, excludes);
 		side += "</div>";	
@@ -222,7 +245,7 @@ function showSideDetails(type, outData, sampleData, excludes=[]){
 	
 	//Instrument
 	if(outData.instrument != null){
-		side += "<h3>Instrument:</h3>";
+		side += "<h3 onclick=\"setOpenTab('Instrument:');\">Instrument:</h3>";
 		side += "<div>";
 		side += addBasicHeaders(outData.instrument, excludes);
 		
@@ -249,7 +272,7 @@ function showSideDetails(type, outData, sampleData, excludes=[]){
 	
 	//Mineralogy/Lithology
 	if((outData.mineralogy != null && outData.mineralogy != "") || (outData.lithologyInfo != null && outData.lithologyInfo != "")){
-		side += "<h3>Mineralogy/Lithology Info:</h3>";
+		side += "<h3 onclick=\"setOpenTab('Mineralogy/Lithology Info:');\">Mineralogy/Lithology Info:</h3>";
 		side += "<div>";
 		
 		if(outData.mineralogy != null && outData.mineralogy != ""){
@@ -365,7 +388,7 @@ function showSideDetails(type, outData, sampleData, excludes=[]){
 	//Grain Info
 	if(outData.grainInfo != null && outData.grainInfo != ""){
 	
-		side += '<h3>Grain Info:</h3>';
+		side += '<h3 onclick=\"setOpenTab(\'Grain Info:\');\">Grain Info:</h3>';
 		side += '<div>';
 		
 		if(outData.grainInfo.grainSizeInfo != null && outData.grainInfo.grainSizeInfo.length > 0){
@@ -419,7 +442,7 @@ function showSideDetails(type, outData, sampleData, excludes=[]){
 	//Fabric Info
 	if(outData.fabricInfo != null && outData.fabricInfo != ""){
 	
-		side += '<h3>Fabric Info:</h3>';
+		side += '<h3 onclick=\"setOpenTab(\'Fabric Info:\');\">Fabric Info:</h3>';
 		side += '<div>';
 		
 		if(outData.fabricInfo.fabrics != null && outData.fabricInfo.fabrics.length > 0){
@@ -512,7 +535,7 @@ function showSideDetails(type, outData, sampleData, excludes=[]){
 	//Extinction Microstructure Info
 	if(outData.extinctionMicrostructureInfo != null && outData.extinctionMicrostructureInfo != ""){
 	
-		side += '<h3>Extinction Microstructure Info:</h3>';
+		side += '<h3 onclick=\"setOpenTab(\'Extinction Microstructure Info:\');\">Extinction Microstructure Info:</h3>';
 		side += '<div>';
 
 		if(outData.extinctionMicrostructureInfo.extinctionMicrostructures != null && outData.extinctionMicrostructureInfo.extinctionMicrostructures.length > 0){
@@ -543,7 +566,7 @@ function showSideDetails(type, outData, sampleData, excludes=[]){
 	//Clastic Deformation Band Info
 	if(outData.clasticDeformationBandInfo != null && outData.clasticDeformationBandInfo != ""){
 	
-		side += '<h3>Clastic Deformation Band Info:</h3>';
+		side += '<h3 onclick=\"setOpenTab(\'Clastic Deformation Band Info:\');\">Clastic Deformation Band Info:</h3>';
 		side += '<div>';
 		
 		if(outData.clasticDeformationBandInfo.bands != null && outData.clasticDeformationBandInfo.bands.length > 0){
@@ -563,7 +586,7 @@ function showSideDetails(type, outData, sampleData, excludes=[]){
 	//Grain Boundary Info
 	if(outData.grainBoundaryInfo != null && outData.grainBoundaryInfo != ""){
 	
-		side += '<h3>Grain Boundary Info:</h3>';
+		side += '<h3 onclick=\"setOpenTab(\'Grain Boundary Info:\');\">Grain Boundary Info:</h3>';
 		side += '<div>';
 		
 		if(outData.grainBoundaryInfo.boundaries != null && outData.grainBoundaryInfo.boundaries.length > 0){
@@ -607,7 +630,7 @@ function showSideDetails(type, outData, sampleData, excludes=[]){
 	//IntraGrain Info
 	if(outData.intraGrainInfo != null && outData.intraGrainInfo != ""){
 	
-		side += '<h3>IntraGrain Info:</h3>';
+		side += '<h3 onclick=\"setOpenTab(\'IntraGrain Info:\');\">IntraGrain Info:</h3>';
 		side += '<div>';
 		
 		if(outData.intraGrainInfo.grains != null && outData.intraGrainInfo.grains.length > 0){
@@ -627,7 +650,7 @@ function showSideDetails(type, outData, sampleData, excludes=[]){
 	//Vein Info
 	if(outData.veinInfo != null && outData.veinInfo != ""){
 	
-		side += '<h3>Vein Info:</h3>';
+		side += '<h3 onclick=\"setOpenTab(\'Vein Info:\');\">Vein Info:</h3>';
 		side += '<div>';
 		
 		
@@ -666,7 +689,7 @@ function showSideDetails(type, outData, sampleData, excludes=[]){
 	//Pseudotachylyte Info
 	if(outData.pseudotachylyteInfo != null && outData.pseudotachylyteInfo != ""){
 	
-		side += '<h3>Pseudotachylyte Info:</h3>';
+		side += '<h3 onclick=\"setOpenTab(\'Pseudotachylyte Info:\');\">Pseudotachylyte Info:</h3>';
 		side += '<div>';
 		
 		if(outData.pseudotachylyteInfo.pseudotachylytes != null && outData.pseudotachylyteInfo.pseudotachylytes.length > 0){
@@ -686,7 +709,7 @@ function showSideDetails(type, outData, sampleData, excludes=[]){
 	//Fold Info
 	if(outData.foldInfo != null && outData.foldInfo != ""){
 	
-		side += '<h3>Fold Info:</h3>';
+		side += '<h3 onclick=\"setOpenTab(\'Fold Info:\');\">Fold Info:</h3>';
 		side += '<div>';
 
 		if(outData.foldInfo.folds != null && outData.foldInfo.folds.length > 0){
@@ -711,7 +734,7 @@ function showSideDetails(type, outData, sampleData, excludes=[]){
 	//Fracture Info
 	if(outData.fractureInfo != null && outData.fractureInfo != ""){
 	
-		side += '<h3>Fracture Info:</h3>';
+		side += '<h3 onclick=\"setOpenTab(\'Fracture Info:\');\">Fracture Info:</h3>';
 		side += '<div>';
 
 		if(outData.fractureInfo.fractures != null && outData.fractureInfo.fractures.length > 0){
@@ -750,7 +773,7 @@ function showSideDetails(type, outData, sampleData, excludes=[]){
 	//Fault Shear Zone Info
 	if(outData.faultsShearZonesInfo != null && outData.faultsShearZonesInfo != ""){
 	
-		side += '<h3>Faults Shear Zones:</h3>';
+		side += '<h3 onclick=\"setOpenTab(\'Faults Shear Zones:\');\">Faults Shear Zones:</h3>';
 		side += '<div>';
 
 		if(outData.faultsShearZonesInfo.faultsShearZones != null && outData.faultsShearZonesInfo.faultsShearZones.length > 0){
@@ -794,7 +817,7 @@ function showSideDetails(type, outData, sampleData, excludes=[]){
 	//Tags Info
 	if(outData.tags != null && outData.tags.length > 0){
 	
-		side += '<h3>Tags:</h3>';
+		side += '<h3 onclick=\"setOpenTab(\'Tags:\');\">Tags:</h3>';
 		side += '<div>';
 		side += '<ol>';
 		
@@ -812,7 +835,7 @@ function showSideDetails(type, outData, sampleData, excludes=[]){
 	//Associated Files Info
 	if(outData.associatedFiles != null && outData.associatedFiles.length > 0){
 	
-		side += '<h3>Associated Files:</h3>';
+		side += '<h3 onclick=\"setOpenTab(\'Associated Files:\');\">Associated Files:</h3>';
 		side += '<div>';
 		side += '<ol>';
 
@@ -827,7 +850,7 @@ function showSideDetails(type, outData, sampleData, excludes=[]){
 	//links Info
 	if(outData.links != null && outData.links.length > 0){
 	
-		side += '<h3>Links:</h3>';
+		side += '<h3 onclick=\"setOpenTab(\'Links:\');\">Links:</h3>';
 		side += '<div>';
 		side += '<ol>';
 
@@ -889,6 +912,13 @@ function addBasicHeaders(json, excludes = []){
 	Object.keys(json).forEach((key) => {
 		if(!excludes.includes(key)){
 			let value = json[key];
+			
+			if(value != "" && value != null){
+				if(typeof value === 'object'){
+					value = JSON.stringify(value);
+				}
+			}
+			
 			let fixedLabel = fixMicroHeader(key);
 
 			if(fixedLabel != ""){
@@ -952,7 +982,6 @@ function switchToMicrograph(inMicrographId){
 function drawSpots(inMicrograph){
 
 		var padding = getPadding(inMicrograph.id);
-		console.log(padding);
 		
 		if(canvas != null){
 			let allObjects = canvas.getObjects();
@@ -1433,17 +1462,11 @@ function switchMainImage(imageId){
 		
 		let naturalWidth = micrograph.width + padding.leftPadding + padding.rightPadding;
 		let naturalHeight = micrograph.height + padding.topPadding + padding.bottomPadding;
-		
-		console.log("naturalWidth " + naturalWidth + " naturalHeight " + naturalHeight);
 
 		let imageRatio = naturalHeight / naturalWidth;
 		mainImageHeight = Math.round(750 * imageRatio);
-		
-
 
 		conversionRatio = 750 / naturalWidth;
-		
-		console.log("conversionRatio: " + conversionRatio);
 
 		document.getElementById("outsideWrapper").style.height = mainImageHeight + "px";
 		document.getElementById("coveringCanvas").style.height = mainImageHeight + "px";
