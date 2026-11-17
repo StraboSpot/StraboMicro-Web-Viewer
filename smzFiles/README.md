@@ -1,11 +1,5 @@
-# smzFiles
-Place uncompressed SMZ files in this directory.
-SMZ files are zip archives with an .smz extension. 
-To expand them, simply replace the .smz extension with a .zip extension and expand as you normally would when using a .zip file.
+Put decompressed StraboMicro projects here, one folder per project.
 
-![SMZ File Location](https://strabospot.org/assets/files/microViewerSShot.png)
-
-Please note that only SMZ projects saved/exported with StraboMicro version 1.0.4 or later are supported by the StraboMicro Web Viewer.
-
-StraboMicro can be downloaded at https://strabospot.org/micro
-
+A .smz file is a ZIP archive: rename it to .zip and extract it. It holds
+one folder named by the project id (it contains project.json). Copy that
+folder here, then open view.html?p=<project id>.
